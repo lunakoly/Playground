@@ -1,0 +1,86 @@
+              iterator            begin                 ()       noexcept
+              iterator            end                   ()       noexcept
+        const_iterator           cbegin                 () const noexcept
+        const_iterator           cend                   () const noexcept
+      reverse_iterator           rbegin                 ()       noexcept
+      reverse_iterator           rend                   ()       noexcept
+const_reverse_iterator          crbegin                 () const noexcept
+const_reverse_iterator          crend                   () const noexcept
+
+             size_type          size                    () const noexcept
+             size_type          capacity                () const noexcept
+             size_type          max_size                () const noexcept
+             Allocator          get_allocator           () const noexcept
+                  bool          empty                   () const noexcept
+
+             reference          operator []             (size_type)
+       const_reference          operator []             (size_type) const
+             reference          at                      (size_type)
+       const_reference          at                      (size_type) const
+
+             reference          front                   ()
+       const_reference          front                   () const
+             reference          back                    ()
+       const_reference          back                    () const
+               pointer          data                    ()
+         const_pointer          data                    () const noexcept
+
+                               ~vector()
+
+------------------void----------force_reserve-----------(size_type)
+
+------------------void----------shift_right-------------(const_iterator, size_type)
+------------------void----------shift_left--------------(const_iterator, size_type)
+
+------------------void----------ensure_can_add_one------(              )
+------------------void----------ensure_can_add----------(size_type size)
+
+------------------void------------raw_swap--------------(vector<T> &&)
+------------------void----------blyat_swap--------------(vector<T> &&)
+
+                                vector                  (      size_type, const T &        , const Allocator & =)
+                       explicit vector                  (      size_type                   , const Allocator & =)
+                       explicit vector                  (                                    const Allocator & =)
+                                vector                  (                                                       )
+                                vector                  (      InputIterator, InputIterator, const Allocator & =)
+                                vector                  (      std::initializer_list<T>    , const Allocator & =)
+                                vector                  (const vector &                    , const Allocator &  )
+                                vector                  (const vector &                                         )
+                                vector                  (      vector &&                   , const Allocator &  )
+                                vector                  (      vector &&                                        )
+
+                  void          swap                    (vector &&)
+                  void          swap                    (vector & )
+
+                  void          operator =              (const vector &                )
+                  void          operator =              (      vector &&               )
+                  void          operator =              (      std::initializer_list<T>)
+
+                  void          assign                  (size_type               , const T &          )
+                  void          assign                  (InputIterator           ,       InputIterator)
+                  void          assign                  (std::initializer_list<T>                     )
+
+                  void          clear                   () noexcept
+
+                  void          reserve                 (size_type)
+
+                  void          shrink_to_fit           ()
+
+                  void          resize                  (size_type, const T &)
+                  void          resize                  (size_type           )
+
+                  void          emplace_back            (                K &&...)
+                  void          emplace                 (const_iterator, K &&...)
+
+                  void          push_back               (const T &)
+
+              iterator          insert                  (const_iterator,                                 T &&         )
+              iterator          insert                  (const_iterator,                           const T &          )
+              iterator          insert                  (const_iterator, size_type               , const T &          )
+              iterator          insert                  (const_iterator, InputIterator           ,       InputIterator)
+              iterator          insert                  (const_iterator, std::initializer_list<T>                     )
+
+                  void          pop_back                ()
+
+              iterator          erase                   (const_iterator                )
+              iterator          erase                   (const_iterator, const_iterator)
