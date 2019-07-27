@@ -91,91 +91,91 @@ namespace my {
         /**
          * Returns begin random_access_iterator
          */
-        inline iterator begin() noexcept {
+        iterator begin() noexcept {
             return the_data;
         }
 
         /**
          * Returns end random_access_iterator
          */
-        inline iterator end() noexcept {
+        iterator end() noexcept {
             return the_data + the_size;
         }
 
         /**
          * Returns begin const random_access_iterator
          */
-        inline const_iterator cbegin() const noexcept {
+        const_iterator cbegin() const noexcept {
             return the_data;
         }
 
         /**
          * Returns end const random_access_iterator
          */
-        inline const_iterator cend() const noexcept {
+        const_iterator cend() const noexcept {
             return the_data + the_size;
         }
 
         /**
          * Returns begin reverse random_access_iterator
          */
-        inline reverse_iterator rbegin() noexcept {
+        reverse_iterator rbegin() noexcept {
             return the_data + the_size - 1;
         }
 
         /**
          * Returns end reverse random_access_iterator
          */
-        inline reverse_iterator rend() noexcept {
+        reverse_iterator rend() noexcept {
             return the_data - 1;
         }
 
         /**
          * Returns begin const reverse random_access_iterator
          */
-        inline const_reverse_iterator crbegin() const noexcept {
+        const_reverse_iterator crbegin() const noexcept {
             return the_data + the_size - 1;
         }
 
         /**
          * Returns end const reverse random_access_iterator
          */
-        inline const_reverse_iterator crend() const noexcept {
+        const_reverse_iterator crend() const noexcept {
             return the_data - 1;
         }
 
         /**
          * Returns the count of elements
          */
-        inline size_type size() const noexcept {
+        size_type size() const noexcept {
             return the_size;
         }
 
         /**
          * Returns the size of the inner storage
          */
-        inline size_type capacity() const noexcept {
+        size_type capacity() const noexcept {
             return the_capacity;
         }
 
         /**
          * Returns the maximum possible count of elements
          */
-        inline size_type max_size() const noexcept {
+        size_type max_size() const noexcept {
             return std::numeric_limits<size_type>::max();
         }
 
         /**
          * Returns an instance of allocator
          */
-        inline Allocator get_allocator() const noexcept {
+        Allocator get_allocator() const noexcept {
             return the_allocator;
         }
 
         /**
          * Returns true if size is 0
          */
-        inline bool empty() const noexcept {
+        bool empty() const noexcept {
             return the_size == 0;
         }
 
@@ -183,7 +183,7 @@ namespace my {
          * Returns a reference to the
          * element at the given position
          */
-        inline reference operator [] (size_type n) {
+        reference operator [] (size_type n) {
             return the_data[n];
         }
 
@@ -191,7 +191,7 @@ namespace my {
          * Returns a const_reference to the
          * element at the given position
          */
-        inline const_reference operator [] (size_type n) const {
+        const_reference operator [] (size_type n) const {
             return the_data[n];
         }
 
@@ -200,7 +200,7 @@ namespace my {
          * element at the given position.
          * Throws out_of_range on error
          */
-        inline reference at(size_type n) {
+        reference at(size_type n) {
             if (n >= the_size)
                 throw std::out_of_range("Requested index is greater than size");
             return the_data[n];
@@ -211,7 +211,7 @@ namespace my {
          * element at the given position.
          * Throws out_of_range on error
          */
-        inline const_reference at(size_type n) const {
+        const_reference at(size_type n) const {
             if (n >= the_size)
                 throw std::out_of_range("Requested index is greater than size");
             return the_data[n];
@@ -221,7 +221,7 @@ namespace my {
          * Returns a reference to the
          * first element
          */
-        inline reference front() {
+        reference front() {
             return the_data[0];
         }
 
@@ -229,7 +229,7 @@ namespace my {
          * Returns a const_reference to the
          * first element
          */
-        inline const_reference front() const {
+        const_reference front() const {
             return the_data[0];
         }
 
@@ -237,7 +237,7 @@ namespace my {
          * Returns a reference to the
          * last element
          */
-        inline reference back() {
+        reference back() {
             return the_data[the_size - 1];
         }
 
@@ -245,7 +245,7 @@ namespace my {
          * Returns a const_reference to the
          * last element
          */
-        inline const_reference back() const {
+        const_reference back() const {
             return the_data[the_size - 1];
         }
 
@@ -253,7 +253,7 @@ namespace my {
          * Returns a pointer to the
          * internal storage
          */
-        inline pointer data() noexcept {
+        pointer data() noexcept {
             return the_data;
         }
 
@@ -261,7 +261,7 @@ namespace my {
          * Returns a const_pointer to the
          * internal storage
          */
-        inline const_pointer data() const noexcept {
+        const_pointer data() const noexcept {
             return the_data;
         }
 
@@ -582,7 +582,7 @@ namespace my {
          * Inserts element into the given position
          */
         iterator insert(const_iterator position, T && item) {
-            return emplace(position, item);
+            return emplace(position, std::move(item));
         }
 
         /**
@@ -697,7 +697,7 @@ namespace my {
          * Reallocate the inner storage
          * to satisfy the new capacity
          */
-        inline void force_reserve(size_type new_capacity) {
+        void force_reserve(size_type new_capacity) {
             // allocate new space
             pointer new_place = allocator_traits::allocate(the_allocator, new_capacity);
 
@@ -721,7 +721,7 @@ namespace my {
          * the left that will be shifted and size is
          * the amount of steps it'll travel
          */
-        inline void shift_right(iterator position, size_type size) {
+        void shift_right(iterator position, size_type size) {
             for (auto it = end(); it > position; it--) {
                 std::memcpy(it - 1 + size, it - 1, sizeof(T));
             }
@@ -734,7 +734,7 @@ namespace my {
          * element from the left will appear after
          * shifting.
          */
-        inline void shift_left(iterator position, size_type size) {
+        void shift_left(iterator position, size_type size) {
             for (auto it = position; it < end(); it++) {
                 std::memcpy(it, it + size, sizeof(T));
             }
@@ -745,7 +745,7 @@ namespace my {
          * contain at least one more element.
          * Returns false if reallocation occured
          */
-        inline bool ensure_can_add_one() {
+        bool ensure_can_add_one() {
             if (the_size >= the_capacity) {
                 auto max = max_size();
 
@@ -769,7 +769,7 @@ namespace my {
          * contain at least size more element
          * Returns false if reallocation occured
          */
-        inline bool ensure_can_add(size_type size) {
+        bool ensure_can_add(size_type size) {
             auto max = max_size();
 
             // overflow
@@ -798,7 +798,7 @@ namespace my {
         /**
          * Swaps inner contents of the two vectors
          */
-        inline void raw_swap(vector && other) {
+        void raw_swap(vector && other) {
             std::swap(the_data, other.the_data);
             std::swap(the_size, other.the_size);
             std::swap(the_capacity, other.the_capacity);
@@ -809,7 +809,7 @@ namespace my {
          * Moves inner contents of the two vectors
          * into each others allocator space
          */
-        inline void blyat_swap(vector && other) {
+        void blyat_swap(vector && other) {
             // move our contents to others allocator
             vector to_them(std::move(*this), other.the_allocator);
             // move contents from other allocator to ours one
