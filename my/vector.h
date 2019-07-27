@@ -92,63 +92,63 @@ namespace my {
          * Returns begin random_access_iterator
          */
         iterator begin() noexcept {
-            return the_data;
+            return the_begin;
         }
 
         /**
          * Returns end random_access_iterator
          */
         iterator end() noexcept {
-            return the_data + the_size;
+            return the_end;
         }
 
         /**
          * Returns begin const random_access_iterator
          */
         const_iterator cbegin() const noexcept {
-            return the_data;
+            return the_begin;
         }
 
         /**
          * Returns end const random_access_iterator
          */
         const_iterator cend() const noexcept {
-            return the_data + the_size;
+            return the_end;
         }
 
         /**
          * Returns begin reverse random_access_iterator
          */
         reverse_iterator rbegin() noexcept {
-            return the_data + the_size - 1;
+            return the_end - 1;
         }
 
         /**
          * Returns end reverse random_access_iterator
          */
         reverse_iterator rend() noexcept {
-            return the_data - 1;
+            return the_begin - 1;
         }
 
         /**
          * Returns begin const reverse random_access_iterator
          */
         const_reverse_iterator crbegin() const noexcept {
-            return the_data + the_size - 1;
+            return the_end - 1;
         }
 
         /**
          * Returns end const reverse random_access_iterator
          */
         const_reverse_iterator crend() const noexcept {
-            return the_data - 1;
+            return the_begin - 1;
         }
 
         /**
          * Returns the count of elements
          */
         size_type size() const noexcept {
-            return the_size;
+            return the_end - the_begin;
         }
 
         /**
@@ -176,7 +176,7 @@ namespace my {
          * Returns true if size is 0
          */
         bool empty() const noexcept {
-            return the_size == 0;
+            return the_begin == the_end;
         }
 
         /**
@@ -184,7 +184,7 @@ namespace my {
          * element at the given position
          */
         reference operator [] (size_type n) {
-            return the_data[n];
+            return the_begin[n];
         }
 
         /**
@@ -192,7 +192,7 @@ namespace my {
          * element at the given position
          */
         const_reference operator [] (size_type n) const {
-            return the_data[n];
+            return the_begin[n];
         }
 
         /**
@@ -201,9 +201,9 @@ namespace my {
          * Throws out_of_range on error
          */
         reference at(size_type n) {
-            if (n >= the_size)
+            if (n >= size())
                 throw std::out_of_range("Requested index is greater than size");
-            return the_data[n];
+            return the_begin[n];
         }
 
         /**
@@ -212,9 +212,9 @@ namespace my {
          * Throws out_of_range on error
          */
         const_reference at(size_type n) const {
-            if (n >= the_size)
+            if (n >= size())
                 throw std::out_of_range("Requested index is greater than size");
-            return the_data[n];
+            return the_begin[n];
         }
 
         /**
@@ -222,7 +222,7 @@ namespace my {
          * first element
          */
         reference front() {
-            return the_data[0];
+            return *the_begin;
         }
 
         /**
@@ -230,7 +230,7 @@ namespace my {
          * first element
          */
         const_reference front() const {
-            return the_data[0];
+            return *the_begin;
         }
 
         /**
@@ -238,7 +238,7 @@ namespace my {
          * last element
          */
         reference back() {
-            return the_data[the_size - 1];
+            return *(the_end - 1);
         }
 
         /**
@@ -246,7 +246,7 @@ namespace my {
          * last element
          */
         const_reference back() const {
-            return the_data[the_size - 1];
+            return *(the_end - 1);
         }
 
         /**
@@ -254,7 +254,7 @@ namespace my {
          * internal storage
          */
         pointer data() noexcept {
-            return the_data;
+            return the_begin;
         }
 
         /**
@@ -262,7 +262,7 @@ namespace my {
          * internal storage
          */
         const_pointer data() const noexcept {
-            return the_data;
+            return the_begin;
         }
 
         /**
@@ -270,11 +270,11 @@ namespace my {
          * space of the internal storage
          */
         ~vector() {
-            for (auto it = begin(); it != end(); it++) {
+            for (auto it = the_begin; it != the_end; it++) {
                 (*it).~T();
             }
 
-            allocator_traits::deallocate(the_allocator, the_data, the_capacity);
+            allocator_traits::deallocate(the_allocator, the_begin, the_capacity);
         }
 
         /**
@@ -288,11 +288,10 @@ namespace my {
         ) : the_allocator(allocator) {
             force_reserve(size);
 
-            for (size_type it = 0; it < size; it++) {
-                new(the_data + it) T(filler);
+            while (the_end != the_begin + size) {
+                new(the_end) T(filler);
+                the_end++;
             }
-
-            the_size = size;
         }
 
         /**
@@ -326,17 +325,13 @@ namespace my {
         ) : the_allocator(allocator) {
             size_type size = std::distance(first, last);
             force_reserve(size);
-
             auto from = first;
-            auto to = begin();
 
             while (from != last) {
-                new(to) T(*from);
+                new(the_end) T(*from);
+                the_end++;
                 from++;
-                to++;
             }
-
-            the_size = size;
         }
 
         /**
@@ -390,14 +385,15 @@ namespace my {
             } else {
                 // we are told to used the specific allocator
                 // so the elements must be located in it's space
-                force_reserve(other.the_size);
+                force_reserve(other.size());
 
-                for (size_type it = 0; it < other.the_size; it++) {
-                    new(the_data + it) T( std::move(other.the_data[it]) );
+                auto from = other.the_begin;
+
+                while (from != other.the_end) {
+                    new(the_end) T(std::move(*from));
+                    the_end++;
+                    from++;
                 }
-
-                the_size = other.the_size;
-                other.the_size = 0;
             }
         }
 
@@ -514,11 +510,12 @@ namespace my {
         void resize(size_type size, const T & filler) {
             reserve(size);
 
-            for (size_type it = the_size; it < size; it++) {
-                new(the_data + it) T(filler);
+            while (the_end < the_begin + size) {
+                new(the_end) T(filler);
+                the_end++;
             }
 
-            the_size = size;
+            the_end = the_begin + size;
         }
 
         /**
@@ -537,8 +534,8 @@ namespace my {
         template <typename... K>
         void emplace_back(K &&... arguments) {
             ensure_can_add_one();
-            new(the_data + the_size) T(std::forward<K>(arguments)...);
-            the_size++;
+            new(the_end) T(std::forward<K>(arguments)...);
+            the_end++;
         }
 
         /**
@@ -550,16 +547,14 @@ namespace my {
             auto place = const_cast<iterator>(position);
             // if reallocation happens
             // place will become an invalid pointer
-            auto old_data = the_data;
-
-            if (!ensure_can_add_one()) {
-                place = the_data + (place - old_data);
-            }
+            auto old_begin = the_begin;
+            ensure_can_add_one();
+            place = place - old_begin + the_begin;
 
             shift_right(place, 1);
 
             new(place) T(std::forward<K>(arguments)...);
-            the_size++;
+            the_end++;
 
             return place;
         }
@@ -596,11 +591,9 @@ namespace my {
             auto place = const_cast<iterator>(position);
             // if reallocation happens
             // place will become an invalid pointer
-            auto old_data = the_data;
-
-            if (!ensure_can_add(size)) {
-                place = the_data + (place - old_data);
-            }
+            auto old_begin = the_begin;
+            ensure_can_add(size);
+            place = place - old_begin + the_begin;
 
             shift_right(place, size);
 
@@ -608,7 +601,7 @@ namespace my {
                 new(it) T(filler);
             }
 
-            the_size += size;
+            the_end += size;
             return place;
         }
 
@@ -626,11 +619,9 @@ namespace my {
             size_type size = std::distance(first, last);
             // if reallocation happens
             // place will become an invalid pointer
-            auto old_data = the_data;
-
-            if (!ensure_can_add(size)) {
-                place = the_data + (place - old_data);
-            }
+            auto old_begin = the_begin;
+            ensure_can_add(size);
+            place = place - old_begin + the_begin;
 
             shift_right(place, size);
 
@@ -638,7 +629,7 @@ namespace my {
                 new(place + it) T(*(first + it));
             }
 
-            the_size += size;
+            the_end += size;
             return place;
         }
 
@@ -658,7 +649,7 @@ namespace my {
          */
         void pop_back() {
             back().~T();
-            the_size--;
+            the_end--;
         }
 
         /**
@@ -668,7 +659,7 @@ namespace my {
             auto place = const_cast<iterator>(position);
 
             shift_left(place, 1);
-            the_size--;
+            the_end--;
 
             return place;
         }
@@ -682,15 +673,15 @@ namespace my {
 
             size_type size = std::distance(first_place, last_place);
             shift_left(first_place, size);
-            the_size -= size;
+            the_end -= size;
 
             return first_place;
         }
 
     private:
-        pointer   the_data      = nullptr;
+        pointer   the_end       = nullptr;
+        pointer   the_begin     = nullptr;
         size_type the_capacity  = 0;
-        size_type the_size      = 0;
         Allocator the_allocator;
 
         /**
@@ -698,20 +689,24 @@ namespace my {
          * to satisfy the new capacity
          */
         void force_reserve(size_type new_capacity) {
+            size_type old_size = 0;
+
             // allocate new space
             pointer new_place = allocator_traits::allocate(the_allocator, new_capacity);
 
             // if we had smth previously
-            if (the_data != nullptr) {
+            if (the_begin != the_end) {
+                old_size = the_end - the_begin;
                 // copy contents
-                std::memcpy(new_place, the_data, sizeof(T) * the_size);
+                std::memcpy(new_place, the_begin, sizeof(T) * old_size);
                 // deallocate old space
-                allocator_traits::deallocate(the_allocator, the_data, the_capacity);
+                allocator_traits::deallocate(the_allocator, the_begin, the_capacity);
             }
 
             // apply changes
+            the_begin = new_place;
             the_capacity = new_capacity;
-            the_data = new_place;
+            the_end = the_begin + old_size;
         }
 
         /**
@@ -722,7 +717,7 @@ namespace my {
          * the amount of steps it'll travel
          */
         void shift_right(iterator position, size_type size) {
-            for (auto it = end(); it > position; it--) {
+            for (auto it = the_end; it > position; it--) {
                 std::memcpy(it - 1 + size, it - 1, sizeof(T));
             }
         }
@@ -735,7 +730,7 @@ namespace my {
          * shifting.
          */
         void shift_left(iterator position, size_type size) {
-            for (auto it = position; it < end(); it++) {
+            for (auto it = position; it < the_end; it++) {
                 std::memcpy(it, it + size, sizeof(T));
             }
         }
@@ -743,13 +738,14 @@ namespace my {
         /**
          * Extends the internal storage to
          * contain at least one more element.
-         * Returns false if reallocation occured
          */
-        bool ensure_can_add_one() {
-            if (the_size >= the_capacity) {
+        void ensure_can_add_one() {
+            auto current_size = size();
+
+            if (current_size >= the_capacity) {
                 auto max = max_size();
 
-                if (the_size == max)
+                if (current_size == max)
                     throw std::length_error("Maximum size reached");
 
                 if (the_capacity > max / 2) {
@@ -757,26 +753,22 @@ namespace my {
                 } else {
                     force_reserve(the_capacity * 2);
                 }
-
-                return false;
             }
-
-            return true;
         }
 
         /**
          * Extends the internal storage to
          * contain at least size more element
-         * Returns false if reallocation occured
          */
-        bool ensure_can_add(size_type size) {
+        void ensure_can_add(size_type count) {
+            auto current_size = size();
             auto max = max_size();
 
             // overflow
-            if (max - size < the_size)
+            if (max - count < current_size)
                 throw std::length_error("Maximum size reached");
 
-            auto new_size = size + the_size;
+            auto new_size = count + current_size;
 
             if (new_size > the_capacity) {
                 if (the_capacity > max / 2) {
@@ -788,19 +780,15 @@ namespace my {
                     size_type new_capacity = the_capacity * pow(2, power);
                     force_reserve(new_capacity);
                 }
-
-                return false;
             }
-
-            return true;
         }
 
         /**
          * Swaps inner contents of the two vectors
          */
         void raw_swap(vector && other) {
-            std::swap(the_data, other.the_data);
-            std::swap(the_size, other.the_size);
+            std::swap(the_end, other.the_end);
+            std::swap(the_begin, other.the_begin);
             std::swap(the_capacity, other.the_capacity);
             std::swap(the_allocator, other.the_allocator);
         }
