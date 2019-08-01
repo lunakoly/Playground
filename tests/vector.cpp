@@ -48,9 +48,9 @@ void print_contents(const my::vector<Snitch, Allocator> & things, T && name) {
 }
 
 
-template <typename Allocator>
+template <typename Iterable>
 void assert_filler(
-	const my::vector<Snitch, Allocator> & items,
+	const Iterable & items,
 	size_t count,
 	const Snitch & filler
 ) {
@@ -69,10 +69,10 @@ void assert_filler(
 }
 
 
-template <typename Allocator, typename Iterable>
+template <typename FirstIterable, typename SecondIterable>
 void assert_range(
-	const my::vector<Snitch, Allocator> & items,
-	const Iterable & protos
+	const FirstIterable & items,
+	const SecondIterable & protos
 ) {
 	size_t offset = 0;
 	auto proto = protos.begin();
