@@ -80,10 +80,10 @@ void assert_range(
 
 template <typename Iterable>
 void print_contents(const Iterable & things) {
-	std::cout << '[';
+	std::cout << "[ ";
 
 	for (auto it = things.cbegin(); it != things.cend(); it++) {
-		std::cout << *it << ", ";
+		std::cout << *it << ' ';
 	}
 
 	std::cout << ']' << std::endl;
@@ -104,6 +104,20 @@ void test_rotate() {
 	std::cout << "Result = " << *result << std::endl;
 }
 
+void test_insertion_sort() {
+	my::vector<int> numbers = {1, 14, 6, 12, 3, 167, 124, 5, 1};
+	my::insertion_sort(numbers.begin(), numbers.end(), my::fast_swap);
+	print_contents(numbers);
+	assert_range(numbers, std::initializer_list {1, 1, 3, 5, 6, 12, 14, 124, 167});
+}
+
+void test_selection_sort() {
+	my::vector<int> numbers = {1, 14, 6, 12, 3, 167, 124, 5, 1};
+	my::selection_sort(numbers.begin(), numbers.end());
+	print_contents(numbers);
+	assert_range(numbers, std::initializer_list {1, 1, 3, 5, 6, 12, 14, 124, 167});
+}
+
 int main() {
 	// set random seed
 	srand(time(nullptr));
@@ -113,5 +127,7 @@ int main() {
 	// test_karatsuba();
 	// test_lower_bound();
 	// test_upper_bound();
-	test_rotate();
+	// test_rotate();
+	// test_insertion_sort();
+	test_selection_sort();
 }

@@ -166,44 +166,6 @@ namespace my {
 	using swap_function_for = swap_function<typename std::iterator_traits<Iterator>::value_type>;
 
 	/**
-	 * Analogue of std::rotate
-	 *
- 	 * Time   Complexity: O(n), n = right - left
-	 * Memory Complexity: O(1)
-	 */
-	template <typename Iterator>
-	Iterator rotate(
-		Iterator left,
-		Iterator start,
-		Iterator right,
-		swap_function_for<Iterator> swap = std::swap
-	) {
-		Iterator result = right - (start - left);
-
-		while (start != right) {
-			if (std::distance(left, start) <= std::distance(start, right)) {
-				auto that = start;
-
-				while (left != that) {
-					swap(*left, *start);
-					start++;
-					left++;
-				}
-			} else {
-				auto that = start;
-
-				while (right != that) {
-					swap(*(right - 1), *(start - 1));
-					start--;
-					right--;
-				}
-			}
-		}
-
-		return result;
-	}
-
-	/**
 	 * Swaps all elements
 	 * of range [first1, last1) and
 	 * [first2, first2 + last1 - first1)
@@ -227,16 +189,115 @@ namespace my {
 		return first2;
 	}
 
-	// template <typename Iterator>
-	// void insertion_sort(Iterator left, Iterator right) {
-	// 	auto it = left;
+	/**
+	 * Analogue of std::rotate
+	 *
+ 	 * Time   Complexity: O(n), n = right - left
+	 * Memory Complexity: O(1)
+	 */
+	template <typename Iterator>
+	Iterator rotate_old(
+		Iterator left,
+		Iterator start,
+		Iterator right,
+		swap_function_for<Iterator> swap = std::swap
+	) {
+		Iterator result = right - (start - left);
 
-	// 	while (it != right) {
-	// 		for (auto that = left; that < it; that++) {
-	// 			if (*it < *that) {
+		while (left < start && start < right) {
+			if (std::distance(left, start) <= std::distance(start, right)) {
+				auto that = start;
 
-	// 			}
-	// 		}
-	// 	}
-	// }
+				while (left != that) {
+					swap(*left, *start);
+					start++;
+					left++;
+				}
+			} else {
+				auto that = start;
+
+				while (right != that) {
+					swap(*(right - 1), *(start - 1));
+					start--;
+					right--;
+				}
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Analogue of std::rotate
+	 *
+ 	 * Time   Complexity: O(n), n = right - left
+	 * Memory Complexity: O(1)
+	 */
+	template <typename Iterator>
+	Iterator rotate(
+		Iterator left,
+		Iterator start,
+		Iterator right,
+		swap_function_for<Iterator> swap = std::swap
+	) {
+		Iterator result = right - (start - left);
+		Iterator anchor = start;
+
+		while (left != anchor) {
+			swap(*left, *anchor);
+			anchor++;
+			left++;
+
+			if (anchor == right) {
+				anchor = start;
+			} else if (left == start) {
+				start = anchor;
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Just the insertion sort
+	 *
+	 * Time   Complexity: O(nn), n = right - left
+	 * Memory Complexity: O(1)
+	 */
+	template <typename Iterator>
+	void insertion_sort(
+		Iterator left,
+		Iterator right,
+		swap_function_for<Iterator> swap = std::swap
+	) {
+		for (auto it = left + 1; it != right; it++) {
+			auto place = my::upper_bound(left, it, *it);
+			my::rotate(place, it, it + 1, swap);
+		}
+	}
+
+	/**
+	 * Just the selection sort
+	 *
+	 * Time   Complexity: O(nn), n = right - left
+	 * Memory Complexity: O(1)
+	 */
+	template <typename Iterator>
+	void selection_sort(
+		Iterator left,
+		Iterator right,
+		swap_function_for<Iterator> swap = std::swap
+	) {
+		for (auto it = left; it < right - 1; it++) {
+			auto smallest = it;
+
+			for (auto that = it + 1; that != right; that++) {
+				if (*that < *smallest) {
+					smallest = that;
+				}
+			}
+
+			swap(*it, *smallest);
+		}
+	}
 }
