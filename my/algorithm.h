@@ -202,7 +202,7 @@ namespace my {
 		Iterator right,
 		swap_function_for<Iterator> swap = std::swap
 	) {
-		Iterator result = right - (start - left);
+		Iterator result = right - std::distance(left, start);
 
 		while (left < start && start < right) {
 			if (std::distance(left, start) <= std::distance(start, right)) {
@@ -240,7 +240,7 @@ namespace my {
 		Iterator right,
 		swap_function_for<Iterator> swap = std::swap
 	) {
-		Iterator result = right - (start - left);
+		Iterator result = right - std::distance(left, start);
 		Iterator anchor = start;
 
 		while (left != anchor) {
@@ -299,5 +299,112 @@ namespace my {
 
 			swap(*it, *smallest);
 		}
+	}
+
+	/**
+	 * Just the merge sort
+	 *
+	 * Time   Complexity: O(nlogn), n = right - left
+	 * Memory Complexity: O(n),     n = right - left
+	 */
+	template <typename Iterator>
+	void merge_sort(
+		Iterator left,
+		Iterator right,
+		swap_function_for<Iterator> swap = std::swap
+	) {
+		size_t size = std::distance(left, right);
+
+		if (size <= 1)
+			return;
+
+		Iterator middle = left + size / 2;
+
+		merge_sort(left, middle);
+		merge_sort(middle, right);
+
+		char temp[size * sizeof(typename std::iterator_traits<Iterator>::value_type)];
+
+		Iterator a = left;
+		Iterator b = middle;
+		Iterator c = (Iterator) temp;
+
+		while (a < middle || b < right) {
+			if (a >= middle) {
+				swap(*c, *b);
+				b++;
+				c++;
+			} else if (b >= right) {
+				swap(*c, *a);
+				a++;
+				c++;
+			} else if (*a <= *b) {
+				swap(*c, *a);
+				a++;
+				c++;
+			} else {swap(*c, *b);
+				b++;
+				c++;
+			}
+		}
+
+		my::swap_ranges(left, right, (Iterator) temp, swap);
+	}
+
+	/**
+	 * Just the quick sort
+	 *
+	 * Time   Complexity: O(nlogn), n = right - left
+	 * Memory Complexity: O(1)
+	 */
+	template <typename Iterator>
+	void quick_sort(
+		Iterator left,
+		Iterator right,
+		swap_function_for<Iterator> swap = std::swap
+	) {
+		size_t size = std::distance(left, right);
+
+		if (size <= 1)
+			return;
+
+		Iterator middle = left + size / 2;
+
+		if (*middle < *left) {
+			swap(*left, *middle);
+		}
+
+		if (*(right - 1) < *left) {
+			swap(*left, *(right - 1));
+		}
+
+		if (*middle < *(right - 1)) {
+			swap(*middle, *(right - 1));
+		}
+
+		auto pivot = right - 1;
+
+		Iterator a = left;
+		Iterator b = pivot - 1;
+
+		while (a < b) {
+			if (*a <= *pivot) {
+				a++;
+			} else if (*b > *pivot) {
+				b--;
+			} else {
+				swap(*a, *b);
+			}
+		}
+
+		// exceptional case where we may
+		// have only 2 items in containter
+		// and the first one is less than the
+		// las one (the pivot)
+		if (*b >= *pivot)
+			swap(*b, *pivot);
+
+		quick_sort(left, b, swap);
+		quick_sort(b + 1, right, swap);
 	}
 }

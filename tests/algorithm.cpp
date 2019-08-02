@@ -118,6 +118,20 @@ void test_selection_sort() {
 	assert_range(numbers, std::initializer_list {1, 1, 3, 5, 6, 12, 14, 124, 167});
 }
 
+void test_merge_sort() {
+	my::vector<int> numbers = {1, 14, 6, 12, 3, 167, 124, 5, 1};
+	my::merge_sort(numbers.begin(), numbers.end());
+	print_contents(numbers);
+	assert_range(numbers, std::initializer_list {1, 1, 3, 5, 6, 12, 14, 124, 167});
+}
+
+void test_quick_sort() {
+	my::vector<int> numbers = {1, 14, 6, 12, 3, 167, 124, 5, 1};
+	my::quick_sort(numbers.begin(), numbers.end());
+	print_contents(numbers);
+	assert_range(numbers, std::initializer_list {1, 1, 3, 5, 6, 12, 14, 124, 167});
+}
+
 int main() {
 	// set random seed
 	srand(time(nullptr));
@@ -129,5 +143,7 @@ int main() {
 	// test_upper_bound();
 	// test_rotate();
 	// test_insertion_sort();
-	test_selection_sort();
+	// test_selection_sort();
+	// test_merge_sort();
+	test_quick_sort();
 }
