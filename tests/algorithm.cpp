@@ -132,6 +132,16 @@ void test_quick_sort() {
 	assert_range(numbers, std::initializer_list {1, 1, 3, 5, 6, 12, 14, 124, 167});
 }
 
+void test_select() {
+	my::vector<int> numbers = {1, 14, 6, 12, 3, 167, 124, 5, 1};
+	auto found = my::select(numbers.begin(), numbers.end(), 3);
+	assert(*found == 5);
+	found = my::select(numbers.begin(), numbers.end(), 0);
+	assert(*found == 1);
+	found = my::select(numbers.begin(), numbers.end(), 8);
+	assert(*found == 167);
+}
+
 int main() {
 	// set random seed
 	srand(time(nullptr));
@@ -145,5 +155,6 @@ int main() {
 	// test_insertion_sort();
 	// test_selection_sort();
 	// test_merge_sort();
-	test_quick_sort();
+	// test_quick_sort();
+	test_select();
 }

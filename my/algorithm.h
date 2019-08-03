@@ -271,8 +271,8 @@ namespace my {
 		swap_function_for<Iterator> swap = std::swap
 	) {
 		for (auto it = left + 1; it != right; it++) {
-			auto place = my::upper_bound(left, it, *it);
-			my::rotate(place, it, it + 1, swap);
+			auto place = upper_bound(left, it, *it);
+			rotate(place, it, it + 1, swap);
 		}
 	}
 
@@ -352,6 +352,50 @@ namespace my {
 	}
 
 	/**
+	 * Sorts all elements in such way
+	 * that every element to the left
+	 * of pivot are <= pivot and
+	 * every element to the right
+	 * are >= than it
+	 *
+	 * Time   Complexity: O(n), n = right - left
+	 * Memory Complexity: O(1)
+	 */
+	template <typename Iterator>
+	Iterator partition(
+		Iterator left,
+		Iterator right,
+		Iterator pivot,
+		swap_function_for<Iterator> swap = std::swap
+	) {
+		if (pivot != right - 1) {
+			swap(*(pivot), *(right - 1));
+			pivot = right - 1;
+		}
+
+		Iterator a = left;
+		Iterator b = right - 2;
+
+		while (a < b) {
+			if (*a <= *pivot) {
+				a++;
+			} else if (*b > *pivot) {
+				b--;
+			} else {
+				swap(*a, *b);
+			}
+		}
+
+		// exceptional case where pivot
+		// is the greatest item and we
+		// shouldn't swap it with anything
+		if (*b >= *pivot)
+			swap(*b, *pivot);
+
+		return b;
+	}
+
+	/**
 	 * Just the quick sort
 	 *
 	 * Time   Complexity: O(nlogn), n = right - left
@@ -382,29 +426,69 @@ namespace my {
 			swap(*middle, *(right - 1));
 		}
 
-		auto pivot = right - 1;
+		auto separator = partition(left, right, right - 1, swap);
+		quick_sort(left, separator, swap);
+		quick_sort(separator + 1, right, swap);
+	}
 
-		Iterator a = left;
-		Iterator b = pivot - 1;
+	/**
+	 * Returns an element that would be located
+	 * at a specific position if the container
+	 * was sorted
+	 *
+	 * Time   Complexity: O(n), n = right - left
+	 * Memory Complexity: O(1)
+	 */
+	template <typename Iterator>
+	Iterator select(
+		Iterator left,
+		Iterator right,
+		size_t index,
+		swap_function_for<Iterator> swap = std::swap
+	) {
+		constexpr size_t type_size = sizeof(typename std::iterator_traits<Iterator>::value_type);
+		size_t size = std::distance(left, right);
 
-		while (a < b) {
-			if (*a <= *pivot) {
-				a++;
-			} else if (*b > *pivot) {
-				b--;
-			} else {
-				swap(*a, *b);
-			}
+		if (size <= 1)
+			return left;
+
+		// array of medians of portions of 5 items
+		size_t sub_size = ceil(size / 5);
+		char temp[type_size * sub_size];
+
+		Iterator sub_begin = left;
+		Iterator sub_end = left + 5;
+		Iterator sub = (Iterator) temp;
+
+		// fill all but the last portion (<= 5)
+		while (sub_begin < right - 5) {
+			quick_sort(sub_begin, sub_end, swap);
+			Iterator sub_median = sub_begin + std::distance(sub_begin, sub_end) / 2;
+			std::memcpy(sub, sub_median, type_size);
+			sub_begin += 5;
+			sub_end += 5;
+			sub++;
 		}
 
-		// exceptional case where we may
-		// have only 2 items in containter
-		// and the first one is less than the
-		// las one (the pivot)
-		if (*b >= *pivot)
-			swap(*b, *pivot);
+		// process the last portion
+		quick_sort(sub_begin, right, swap);
+		Iterator sub_median = sub_begin + std::distance(sub_begin, right) / 2;
+		std::memcpy(sub, sub_median, type_size);
 
-		quick_sort(left, b, swap);
-		quick_sort(b + 1, right, swap);
+		// median of medians
+		Iterator temp_median = select((Iterator) temp, (Iterator) temp + sub_size, size / 2, swap);
+		// find median element in the source container
+		Iterator median = lower_bound(left, right, *temp_median);
+
+		Iterator separator = partition(left, right, median, swap);
+		size_t separator_index = separator - left;
+
+		if (separator_index == index)
+			return separator;
+
+		if (separator_index < index)
+			return select(separator + 1, right, index - separator_index - 1);
+
+		return select(left, separator, index);
 	}
 }
