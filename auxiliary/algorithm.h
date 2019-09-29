@@ -566,4 +566,68 @@ namespace my {
 
         std::swap_ranges(left, right, sorted);
 	}
+
+	/**
+	 * Just the radix sort
+	 *
+	 *   Time Complexity: O(k), k = limit
+	 * Memory Complexity: O(n + k), n = right - left
+	 */
+	template <typename Iterator, typename Number>
+	void radix_sort(
+		Iterator left,
+		Iterator right,
+		Number limit,
+		swap_function_for<Iterator> swap = std::swap
+	) {
+        // 2^n digits
+        constexpr auto DIGIT_BASE = 64;
+        constexpr auto POWER = 6;
+        constexpr auto MASK = DIGIT_BASE - 1;
+
+		using T = typename std::iterator_traits<Iterator>::value_type;
+
+		static_assert(
+            std::is_same<T, Number>::value,
+            "T must be a Number"
+        );
+
+        auto length = std::distance(left, right);
+
+        T trimmed[length];
+        std::copy(left, right, trimmed);
+
+        T counts[DIGIT_BASE];
+
+        T trimmed_sorted[length];
+        T    left_sorted[length];
+
+        for (auto digit = 0; digit < limit; digit++) {
+	        for (auto it = 0; it < DIGIT_BASE; it++) {
+	        	counts[it] = 0;
+	        }
+
+	        for (auto it = 0; it < length; it++) {
+	        	counts[trimmed[it] & MASK]++;
+	        }
+
+	        for (auto it = 1; it < DIGIT_BASE; it++) {
+	        	counts[it] += counts[it - 1];
+	        }
+
+	        for (auto it = length - 1; it >= 0; it--) {
+	        	counts[trimmed[it] & MASK] -= 1;
+
+	        	trimmed_sorted[counts[trimmed[it] & MASK]] = trimmed[it];
+	        	   left_sorted[counts[trimmed[it] & MASK]] = left[it];
+			}
+
+	        std::copy(trimmed_sorted, trimmed_sorted + length, trimmed);
+	        std::copy(   left_sorted,    left_sorted + length, left);
+
+	        for (auto it = 0; it < length; it++) {
+	        	trimmed[it] >>= POWER;
+	        }
+        }
+	}
 }

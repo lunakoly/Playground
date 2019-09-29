@@ -156,6 +156,13 @@ TEST(algorithm_tests, counting_sort) {
 }
 
 
+TEST(algorithm_tests, radix_sort) {
+	my::fast_vector<int> numbers = {1, 14, 6, 12, 3, 167, 124, 5, 1};
+	my::radix_sort(numbers.begin(), numbers.end(), 3);
+	assert_range(numbers, std::initializer_list {1, 1, 3, 5, 6, 12, 14, 124, 167});
+}
+
+
 int main(int argc, char * argv[]) {
 	testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
