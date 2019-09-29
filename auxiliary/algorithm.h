@@ -11,6 +11,9 @@
 #include <cstring>
 #include <iterator>
 
+// for heap_sort
+#include "../heap/heap.h"
+
 
 /**
  * Custom implementations
@@ -20,7 +23,7 @@ namespace my {
 	 * Return the max of x and y
 	 * via bitwise arithmetics.
 	 *
-	 * Time   Complexity: O(1)
+	 *   Time Complexity: O(1)
 	 * Memory Complexity: O(n), n = sizeof(Number)
 	 */
 	template <typename Number>
@@ -36,7 +39,7 @@ namespace my {
 	 * will always be claimed to occupy
 	 * all bits.
 	 *
-	 * Time   Complexity: O(n), n = sizeof(Number)
+	 *   Time Complexity: O(n)
 	 * Memory Complexity: O(n), n = sizeof(Number)
 	 */
 	template <typename Number>
@@ -56,7 +59,7 @@ namespace my {
 	/**
 	 * Fast multiplication by Karatsuba.
 	 *
- 	 * Time   Complexity: O(n ^ log_2(3)), n = sizeof(Number)
+ 	 *   Time Complexity: O(n ^ log_2(3))
 	 * Memory Complexity: O(n ^ log_2(3)), n = sizeof(Number)
 	 */
 	template <typename Number>
@@ -100,6 +103,9 @@ namespace my {
 	 * If we accidently meet *middle == value then we should
 	 * ensure that the near left elements don't == value
 	 * so we mark middle as right and go further.
+	 *
+	 *   Time Complexity: O(log_2(n)), n = distance(left, right)
+	 * Memory Complexity: O(1)
 	 */
 	template<class Iterator, class T>
 	Iterator lower_bound(Iterator left, Iterator right, T value) {
@@ -120,6 +126,9 @@ namespace my {
 	 * If we accidently meet *middle == value then we should
 	 * ensure that the near right elements don't == value
 	 * so we mark middle as left and go further.
+	 *
+	 *   Time Complexity: O(log_2(n)), n = distance(left, right)
+	 * Memory Complexity: O(1)
 	 */
 	template<class Iterator, class T>
 	Iterator upper_bound(Iterator left, Iterator right, T value) {
@@ -140,15 +149,15 @@ namespace my {
 	 * Uses memcpu to swap first's ans second's
 	 * internals.
 	 *
-	 * Time   Complexity: O(n), n = sizeof(T)
+	 *   Time Complexity: O(n)
 	 * Memory Complexity: O(n), n = sizeof(T)
 	 */
 	template <typename T>
 	void fast_swap(T & first, T & second) {
 		char temp[sizeof(T)];
-		std::memcpy(&temp, &first, sizeof(T));
-		std::memcpy(&first, &second, sizeof(T));
-		std::memcpy(&second, &temp, sizeof(T));
+		std::memcpy(&temp,   &first,  sizeof(T));
+		std::memcpy(&first,  &second, sizeof(T));
+		std::memcpy(&second, &temp,   sizeof(T));
 	}
 
 	/**
@@ -170,7 +179,7 @@ namespace my {
 	 * of range [first1, last1) and
 	 * [first2, first2 + last1 - first1)
 	 *
- 	 * Time   Complexity: O(n), n = last1 - first1
+ 	 *   Time Complexity: O(n), n = distance(first1, last1)
 	 * Memory Complexity: O(1)
 	 */
 	template <typename Iterator>
@@ -192,7 +201,7 @@ namespace my {
 	/**
 	 * Analogue of std::rotate
 	 *
- 	 * Time   Complexity: O(n), n = right - left
+ 	 *   Time Complexity: O(n), n = distance(left, right)
 	 * Memory Complexity: O(1)
 	 */
 	template <typename Iterator>
@@ -230,7 +239,7 @@ namespace my {
 	/**
 	 * Analogue of std::rotate
 	 *
- 	 * Time   Complexity: O(n), n = right - left
+ 	 *   Time Complexity: O(n), n = distance(left, right)
 	 * Memory Complexity: O(1)
 	 */
 	template <typename Iterator>
@@ -261,7 +270,7 @@ namespace my {
 	/**
 	 * Just the insertion sort
 	 *
-	 * Time   Complexity: O(nn), n = right - left
+	 *   Time Complexity: O(nn), n = distance(left, right)
 	 * Memory Complexity: O(1)
 	 */
 	template <typename Iterator>
@@ -279,7 +288,7 @@ namespace my {
 	/**
 	 * Just the selection sort
 	 *
-	 * Time   Complexity: O(nn), n = right - left
+	 *   Time Complexity: O(nn), n = right - left
 	 * Memory Complexity: O(1)
 	 */
 	template <typename Iterator>
@@ -304,7 +313,7 @@ namespace my {
 	/**
 	 * Just the merge sort
 	 *
-	 * Time   Complexity: O(nlogn), n = right - left
+	 *   Time Complexity: O(nlogn), n = right - left
 	 * Memory Complexity: O(n),     n = right - left
 	 */
 	template <typename Iterator>
@@ -358,7 +367,7 @@ namespace my {
 	 * every element to the right
 	 * are >= than it
 	 *
-	 * Time   Complexity: O(n), n = right - left
+	 *   Time Complexity: O(n), n = right - left
 	 * Memory Complexity: O(1)
 	 */
 	template <typename Iterator>
@@ -398,7 +407,7 @@ namespace my {
 	/**
 	 * Just the quick sort
 	 *
-	 * Time   Complexity: O(nlogn), n = right - left
+	 *   Time Complexity: O(nlogn), n = right - left
 	 * Memory Complexity: O(1)
 	 */
 	template <typename Iterator>
@@ -436,7 +445,7 @@ namespace my {
 	 * at a specific position if the container
 	 * was sorted
 	 *
-	 * Time   Complexity: O(n), n = right - left
+	 *   Time Complexity: O(n), n = right - left
 	 * Memory Complexity: O(1)
 	 */
 	template <typename Iterator>
@@ -490,5 +499,71 @@ namespace my {
 			return select(separator + 1, right, index - separator_index - 1);
 
 		return select(left, separator, index);
+	}
+
+	/**
+	 * Just the heap sort
+	 *
+	 *   Time Complexity: O(nlogn), n = right - left
+	 * Memory Complexity: O(n)
+	 */
+	template <typename Iterator>
+	void heap_sort(
+		Iterator left,
+		Iterator right,
+		swap_function_for<Iterator> swap = std::swap
+	) {
+		using T = typename std::iterator_traits<Iterator>::value_type;
+		my::heap<T> heap(left, right, my::greater);
+
+		while (left != right)  {
+			swap(*left, *heap.begin());
+			heap.pop_top();
+			left++;
+		}
+	}
+
+	/**
+	 * Just the counting sort
+	 *
+	 *   Time Complexity: O(n), n = right - left
+	 * Memory Complexity: O(k), k = limit
+	 */
+	template <typename Iterator, typename Number>
+	void counting_sort(
+		Iterator left,
+		Iterator right,
+		Number limit,
+		swap_function_for<Iterator> swap = std::swap
+	) {
+		using T = typename std::iterator_traits<Iterator>::value_type;
+
+		static_assert(
+            std::is_same<T, Number>::value,
+            "T must be a Number"
+        );
+
+        T counts[limit];
+
+        for (auto it = 0; it < limit; it++) {
+        	counts[it] = 0;
+        }
+
+        for (auto it = left; it != right; it++) {
+        	counts[*it]++;
+        }
+
+        for (auto it = 1; it < limit; it++) {
+        	counts[it] += counts[it - 1];
+        }
+
+        T sorted[std::distance(left, right)];
+
+        for (auto it = right - 1; it != left - 1; it--) {
+        	counts[*it] -= 1;
+        	swap(sorted[counts[*it]], *it);
+        }
+
+        std::swap_ranges(left, right, sorted);
 	}
 }

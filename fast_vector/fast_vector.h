@@ -36,7 +36,7 @@ namespace my {
         typename T,
         typename Allocator = std::allocator<T>
     >
-    class vector {
+    class fast_vector {
     public:
         /**
          * Allows to access template type T.
@@ -269,7 +269,7 @@ namespace my {
          * Destructs every item and deallocates
          * space of the internal storage
          */
-        ~vector() {
+        ~fast_vector() {
             for (auto it = the_begin; it != the_end; it++) {
                 (*it).~T();
             }
@@ -278,10 +278,10 @@ namespace my {
         }
 
         /**
-         * Constructs a vector with the given
+         * Constructs a fast_vector with the given
          * count of filler copies
          */
-        vector(
+        fast_vector(
             size_type size,
             const T & filler,
             const Allocator & allocator = Allocator()
@@ -295,30 +295,30 @@ namespace my {
         }
 
         /**
-         * Constructs a vector with the given
+         * Constructs a fast_vector with the given
          * count of defaults
          */
-        explicit vector(
+        explicit fast_vector(
             size_type size,
             const Allocator & allocator = Allocator()
-        ) : vector(size, T(), allocator) {}
+        ) : fast_vector(size, T(), allocator) {}
 
         /**
-         * Constructs a vector with default capacity
+         * Constructs a fast_vector with default capacity
          * and no elements
          */
-        explicit vector(
+        explicit fast_vector(
             const Allocator & allocator = Allocator()
         ) : the_allocator(allocator) {
             force_reserve(VECTOR_DEFAULT_CAPACITY);
         }
 
         /**
-         * Constructs a vector via copying
+         * Constructs a fast_vector via copying
          * items between iterators
          */
         template <typename InputIterator>
-        vector(
+        fast_vector(
             InputIterator first,
             InputIterator last,
             const Allocator & allocator = Allocator()
@@ -335,30 +335,30 @@ namespace my {
         }
 
         /**
-         * Constructs a vector via copying
+         * Constructs a fast_vector via copying
          * items from the given initialization list
          */
-        vector(
+        fast_vector(
             std::initializer_list<T> list,
             const Allocator & allocator = Allocator()
-        ) : vector(list.begin(), list.end(), allocator) {}
+        ) : fast_vector(list.begin(), list.end(), allocator) {}
 
         /**
-         * Constructs a copy of the given vector.
+         * Constructs a copy of the given fast_vector.
          * The capacity of the copy will = it's size
          */
-        vector(
-            const vector & other,
+        fast_vector(
+            const fast_vector & other,
             const Allocator & allocator
-        ) : vector(other.cbegin(), other.cend(), allocator) {}
+        ) : fast_vector(other.cbegin(), other.cend(), allocator) {}
 
         /**
-         * Constructs a copy of the given vector.
+         * Constructs a copy of the given fast_vector.
          * The capacity of the copy will = it's size
          */
-        vector(
-            const vector & other
-        ) : vector(
+        fast_vector(
+            const fast_vector & other
+        ) : fast_vector(
             other.cbegin(),
             other.cend(),
             allocator_traits::select_on_container_copy_construction(other.the_allocator)
@@ -367,8 +367,8 @@ namespace my {
         /**
          * Moves contents of other into itself
          */
-        vector(
-            vector && other
+        fast_vector(
+            fast_vector && other
         ) : the_allocator(other.the_allocator) {
             raw_swap(std::move(other));
         }
@@ -376,8 +376,8 @@ namespace my {
         /**
          * Moves contents of other into itself
          */
-        vector(
-            vector && other,
+        fast_vector(
+            fast_vector && other,
             const Allocator & allocator
         ) : the_allocator(allocator) {
             if (the_allocator == other.the_allocator) {
@@ -398,9 +398,9 @@ namespace my {
         }
 
         /**
-         * Swaps inner contents of the two vectors
+         * Swaps inner contents of the two fast_vectors
          */
-        void swap(vector && other) {
+        void swap(fast_vector && other) {
             if (the_allocator == other.the_allocator) {
                 raw_swap(std::move(other));
             } else if (allocator_traits::propagate_on_container_swap::value == true) {
@@ -412,37 +412,37 @@ namespace my {
         }
 
         /**
-         * Swaps inner contents of the two vectors
+         * Swaps inner contents of the two fast_vectors
          */
-        void swap(vector & other) {
+        void swap(fast_vector & other) {
             swap(std::move(other));
         }
 
         /**
-         * Copies contents of another vector
+         * Copies contents of another fast_vector
          * and destroys previous
          */
-        void operator = (const vector & other) {
+        void operator = (const fast_vector & other) {
             if (allocator_traits::propagate_on_container_copy_assignment::value == true) {
-                vector copy(other, other.the_allocator);
+                fast_vector copy(other, other.the_allocator);
                 raw_swap(std::move(copy));
             } else {
-                vector copy(other, the_allocator);
+                fast_vector copy(other, the_allocator);
                 raw_swap(std::move(copy));
             }
         }
 
         /**
-         * Accuires contents of another vector
+         * Accuires contents of another fast_vector
          * and destroys previous
          */
-        void operator = (vector && other) {
+        void operator = (fast_vector && other) {
             if (the_allocator == other.the_allocator) {
                 raw_swap(std::move(other));
             } else if (allocator_traits::propagate_on_container_move_assignment::value == true) {
                 raw_swap(std::move(other));
             } else {
-                vector temp(std::move(other), the_allocator);
+                fast_vector temp(std::move(other), the_allocator);
                 raw_swap(std::move(temp));
             }
         }
@@ -452,7 +452,7 @@ namespace my {
          * and destroys previous
          */
         void operator = (std::initializer_list<T> list) {
-            vector copy(list, the_allocator);
+            fast_vector copy(list, the_allocator);
             raw_swap(std::move(copy));
         }
 
@@ -461,7 +461,7 @@ namespace my {
          * and destroys the previous data
          */
         void assign(size_type size, const T & filler) {
-            vector copy(size, filler, the_allocator);
+            fast_vector copy(size, filler, the_allocator);
             raw_swap(std::move(copy));
         }
 
@@ -471,7 +471,7 @@ namespace my {
          */
         template <typename InputIterator>
         void assign(InputIterator first, InputIterator last) {
-            vector copy(first, last, the_allocator);
+            fast_vector copy(first, last, the_allocator);
             raw_swap(std::move(copy));
         }
 
@@ -479,7 +479,7 @@ namespace my {
          * Removes everythnig
          */
         void clear() noexcept {
-            vector empty(the_allocator);
+            fast_vector empty(the_allocator);
             raw_swap(std::move(empty));
         }
 
@@ -498,7 +498,7 @@ namespace my {
          * it equals the size.
          */
         void shrink_to_fit() {
-            vector copy(*this, the_allocator);
+            fast_vector copy(*this, the_allocator);
             raw_swap(std::move(copy));
         }
 
@@ -560,7 +560,7 @@ namespace my {
         }
 
         /**
-         * Adds element to the vector
+         * Adds element to the fast_vector
          */
         void push_back(const T & item) {
             emplace_back(item);
@@ -784,9 +784,9 @@ namespace my {
         }
 
         /**
-         * Swaps inner contents of the two vectors
+         * Swaps inner contents of the two fast_vectors
          */
-        void raw_swap(vector && other) {
+        void raw_swap(fast_vector && other) {
             std::swap(the_end, other.the_end);
             std::swap(the_begin, other.the_begin);
             std::swap(the_capacity, other.the_capacity);
@@ -794,14 +794,14 @@ namespace my {
         }
 
         /**
-         * Moves inner contents of the two vectors
+         * Moves inner contents of the two fast_vectors
          * into each others allocator space
          */
-        void blyat_swap(vector && other) {
+        void blyat_swap(fast_vector && other) {
             // move our contents to others allocator
-            vector to_them(std::move(*this), other.the_allocator);
+            fast_vector to_them(std::move(*this), other.the_allocator);
             // move contents from other allocator to ours one
-            vector to_us(std::move(other), the_allocator);
+            fast_vector to_us(std::move(other), the_allocator);
             // assign moved contents
             other.raw_swap(std::move(to_them));
             raw_swap(std::move(to_us));

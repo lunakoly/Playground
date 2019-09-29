@@ -50,7 +50,9 @@ namespace my {
          * Returns a pointer to the newly allocated memory
          */
         pointer allocate(size_type size, const_pointer = 0) {
+#ifdef ALERT
             std::cout << "Allocating " << (size * sizeof(T)) << " bytes...\n";
+#endif
             void * location = std::malloc(size * sizeof(T));
 
             if (!location) {
@@ -64,7 +66,9 @@ namespace my {
          * Deallocates space pointer to by location
          */
         void deallocate(pointer location, size_type = 0) {
+#ifdef ALERT
             std::cout << "Deallocating...\n";
+#endif
             std::free(location);
         }
 
