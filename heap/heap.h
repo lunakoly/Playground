@@ -7,29 +7,29 @@
  * Custom implementations
  */
 namespace my {
-	template <typename T>
-	using comparison = bool (T &, T &);
+    template <typename T>
+    using comparison = bool (T &, T &);
 
-	template <typename T>
-	bool greater(T & first, T & second) {
-		return first > second;
-	}
+    template <typename T>
+    bool greater(T & first, T & second) {
+        return first > second;
+    }
 
-	template <typename T>
-	bool less(T & first, T & second) {
-		return first < second;
-	}
+    template <typename T>
+    bool less(T & first, T & second) {
+        return first < second;
+    }
 
-	/**
+    /**
      * Custom heap implementation
      */
-	template <
-		typename T,
-		typename Allocator = std::allocator<T>
-	>
-	class heap {
-	public:
-		 /**
+    template <
+        typename T,
+        typename Allocator = std::allocator<T>
+    >
+    class heap {
+    public:
+         /**
          * Allows to access template type T.
          * Despite value_type is defined I prefer
          * using T.
@@ -256,7 +256,7 @@ namespace my {
          * Constructs an empty heap
          */
         explicit heap(
-        	comparison<T> comparison = less<T>,
+            comparison<T> comparison = less<T>,
             const Allocator & allocator = Allocator()
         ) : the_comparison(comparison), the_storage(0, allocator) {}
 
@@ -271,72 +271,72 @@ namespace my {
             comparison<T> comparison = less<T>,
             const Allocator & allocator = Allocator()
         ) : the_comparison(comparison), the_storage(first, last, allocator) {
-        	invalidate();
+            invalidate();
         }
 
         /**
          * Removes the top element
          */
         void pop_top() {
-        	the_storage.erase(the_storage.begin());
-        	invalidate();
+            the_storage.erase(the_storage.begin());
+            invalidate();
         }
 
-	private:
-		comparison<T> * the_comparison;
-		fast_vector<T, Allocator> the_storage;
+    private:
+        comparison<T> * the_comparison;
+        fast_vector<T, Allocator> the_storage;
 
-		/**
-		 * Drows the given element down
-		 * to it's proper place.
-		 * Linear time complexity
-		 */
-		void drown(pointer it) {
-			auto index = it - begin();
+        /**
+         * Drows the given element down
+         * to it's proper place.
+         * Linear time complexity
+         */
+        void drown(pointer it) {
+            auto index = it - begin();
 
-			auto RIGHT = it + index + 1;
-			auto LEFT  = it + index;
+            auto RIGHT = it + index + 1;
+            auto LEFT  = it + index;
 
-			bool has_right = RIGHT < end();
-			bool has_left  = LEFT  < end();
+            bool has_right = RIGHT < end();
+            bool has_left  = LEFT  < end();
 
-			bool must_swap_right = false;
-			bool must_swap_left  = false;
+            bool must_swap_right = false;
+            bool must_swap_left  = false;
 
-			if (has_right) {
-				must_swap_right = the_comparison(*it, *RIGHT);
-			}
+            if (has_right) {
+                must_swap_right = the_comparison(*it, *RIGHT);
+            }
 
-			if (has_left) {
-				must_swap_left = the_comparison(*it, *LEFT);
-			}
+            if (has_left) {
+                must_swap_left = the_comparison(*it, *LEFT);
+            }
 
-			if (must_swap_right && must_swap_left) {
-				auto target = RIGHT;
+            if (must_swap_right && must_swap_left) {
+                auto target = RIGHT;
 
-				if (the_comparison(*RIGHT, *LEFT)) {
-					target = LEFT;
-				}
+                if (the_comparison(*RIGHT, *LEFT)) {
+                    target = LEFT;
+                }
 
-				std::swap(*it, *target);
-				drown(target);
-			} else if (must_swap_right) {
-				std::swap(*it, *RIGHT);
-				drown(RIGHT);
-			} else if (must_swap_left) {
-				std::swap(*it, *LEFT);
-				drown(LEFT);
-			}
-		}
+                std::swap(*it, *target);
+                drown(target);
+            } else if (must_swap_right) {
+                std::swap(*it, *RIGHT);
+                drown(RIGHT);
+            } else if (must_swap_left) {
+                std::swap(*it, *LEFT);
+                drown(LEFT);
+            }
+        }
 
-		/**
-		 * Ensures that all elements
-		 * are at the proper places
-		 */
-		void invalidate() {
-			for (auto it = rbegin(); it != rend(); it--) {
-				drown(it);
-			}
-		}
-	};
+        /**
+         * Ensures that all elements
+         * are at the proper places
+         */
+        void invalidate() {
+            for (auto it = rbegin(); it != rend(); it--) {
+                drown(it);
+            }
+        }
+    };
 }
