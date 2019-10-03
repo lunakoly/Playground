@@ -27,6 +27,34 @@ TEST(dynamic_tests, matrix_multiplication_order) {
 }
 
 
+TEST(dynamic_tests, longest_common_subsequence) {
+	std::string first = "abadsfaf";
+	std::string second = "ajfkfjj";
+
+	auto out = my::longest_common_subsequence(
+		 first.begin(),  first.end(),
+		second.begin(), second.end()
+	);
+
+	std::string result(out.begin(), out.end());
+	ASSERT_STREQ("aff", result.c_str());
+}
+
+
+TEST(dynamic_tests, hirshberg) {
+	std::string first = "abadsfaf";
+	std::string second = "ajfkfjj";
+
+	auto out = my::hirshberg(
+		 first.begin(),  first.end(),
+		second.begin(), second.end()
+	);
+
+	std::string result(out.begin(), out.end());
+	ASSERT_STREQ("aff", result.c_str());
+}
+
+
 int main(int argc, char * argv[]) {
 	testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
