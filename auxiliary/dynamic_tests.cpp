@@ -41,11 +41,11 @@ TEST(dynamic_tests, longest_common_subsequence) {
 }
 
 
-TEST(dynamic_tests, hirshberg) {
+TEST(dynamic_tests, hirschberg) {
     std::string first = "abadsfaf";
     std::string second = "ajfkfjj";
 
-    auto out = my::hirshberg(
+    auto out = my::hirschberg(
          first.begin(),  first.end(),
         second.begin(), second.end()
     );

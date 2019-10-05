@@ -87,6 +87,13 @@ namespace my {
         Iterator second_begin,
         Iterator second_end
     ) {
+        if (
+             first_begin ==  first_end ||
+            second_begin == second_end
+        ) {
+            return {};
+        }
+
         auto first_length  = std::distance( first_begin,  first_end);
         auto second_length = std::distance(second_begin, second_end);
 
@@ -209,7 +216,7 @@ namespace my {
      * Memory Complexity: Θ(n),  n = second_begin - second_end
      */
     template <typename Iterator>
-    std::vector<typename std::iterator_traits<Iterator>::value_type> hirshberg(
+    std::vector<typename std::iterator_traits<Iterator>::value_type> hirschberg(
         Iterator first_begin,
         Iterator first_end,
         Iterator second_begin,
@@ -219,6 +226,16 @@ namespace my {
 
         auto first_length  = std::distance( first_begin,  first_end);
         auto second_length = std::distance(second_begin, second_end);
+
+        if (
+             first_end -  first_begin <= 1 ||
+            second_end - second_begin <= 1
+        ) {
+            return longest_common_subsequence(
+                 first_begin,  first_end,
+                second_begin, second_end
+            );
+        }
 
         int   forward_counts[second_length];
         int backwards_counts[second_length];
@@ -242,10 +259,10 @@ namespace my {
         );
 
         auto max = forward_counts[0] + backwards_counts[second_length - 1];
-        auto max_k = 0;
+        auto max_k = 1;
 
-        for (auto k = 1; k < second_length; k++) {
-            auto current = forward_counts[k] + backwards_counts[second_length - 1 - k];
+        for (auto k = 2; k < second_length; k++) {
+            auto current = forward_counts[k - 1] + backwards_counts[second_length - 1 - k];
 
             if (current > max) {
                 max = current;
@@ -253,12 +270,12 @@ namespace my {
             }
         }
 
-        auto first_sub = longest_common_subsequence(
+        auto first_sub = hirschberg(
             first_begin, first_end - first_length / 2,
             second_begin, second_begin + max_k
         );
 
-        auto second_sub = longest_common_subsequence(
+        auto second_sub = hirschberg(
             first_end - first_length / 2, first_end,
             second_begin + max_k, second_end
         );
